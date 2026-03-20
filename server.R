@@ -5,7 +5,8 @@ library('ggplot2')
 
 server <- function(input, output) {
   
-  observeEvent({c(input$New,input$autismExponent,input$autismSD,input$autismCapacity,input$autismBias,
+  observeEvent({c(input$New,input$autismExponent,input$autismSensitivity,input$autismCapacity,
+                  input$autismBias,input$autismBiasGroups,input$autismBiasCost,
                   input$nsegments
                   )}, 
     {
@@ -14,24 +15,29 @@ server <- function(input, output) {
         oldVals<-braw.env$oldVals
         changed<-all(c(
           input$autismCapacity==oldVals$autismCapacity,
-          input$autismBias==oldVals$autismBias
+          input$autismBias==oldVals$autismBias,
+          input$autismBiasGroups==oldVals$autismBiasGroups,
+          input$autismBiasCost==oldVals$autismBiasCost
         )
         )
       } else changed<-TRUE
       BrawOpts()
-      
+
       useHTML<-TRUE
       radius<-4
       showpoints<-FALSE
+      showG1<-FALSE
       
       # nsegments<-input$nsegments
       nsegments<-39
       groups<-c(7,3,4,3,4,3,4,3,4,4)
       autismCapacity<-input$autismCapacity/100
       autismExponent<-input$autismExponent
-      autismSD<-input$autismSD
+      autismSD<-1
       autismBias<-input$autismBias
-      biasCost<-4
+      autismBiasGroups<-input$autismBiasGroups
+      autismBiasCost<-input$autismBiasCost*10
+      autismSensitivity<-input$autismSensitivity
       nrings<-7
       displayExponent<-2.5
       totalCapacity<-nsegments*autismCapacity
@@ -61,7 +67,7 @@ server <- function(input, output) {
       # if (!exists('braw.env') || is.null(braw.env$plotLimits)) {
         if (useHTML) setBrawEnv("graphicsType","HTML")
         else         setBrawEnv("graphicsType","ggplot")
-        setBrawEnv('plotSize',c(350,350))
+        setBrawEnv('plotSize',c(1,1)*525)
         
       g<-startPlot(xlim=c(-1,1)*(radius+0.5),ylim=c(-1,1)*(radius+0.5),box="none")
       for (i in 1:nsegments) {
@@ -116,12 +122,16 @@ server <- function(input, output) {
             groupMissingCapacity<-c(groupMissingCapacity,
                                     sum(missing[index]))
           }
+          index<-c()
+          for (j in 1:autismBiasGroups) {
           use<-which.max(groupMissingCapacity)
-          index<-sum(groups[1:use])+1-(1:groups[use])
+          index<-c(index,sum(groups[1:use])+1-(1:groups[use]))
+          groupMissingCapacity[use]<-0
+          }
           capacity[index]<-capacity[index]+missing[index]*autismBias
           gained<-sum(missing[index]*autismBias)
           index<-setdiff(1:nsegments,index)
-          lost<-gained*biasCost/sum(capacity[index])
+          lost<-gained*autismBiasCost/sum(capacity[index])
           capacity[index]<-capacity[index]*(1-min(lost,1))
         }
         # capacity<-character*totalCapacity/requiredCapacity
@@ -150,7 +160,7 @@ server <- function(input, output) {
       z<-cumsum(character)
 
       setBrawEnv('plotSize',c(450,300))
-      g1<-startPlot(xlim=c(0,nsegments+1),ylim=c(0,max(z)*1.2),box="both",
+      g1<-startPlot(xlim=c(0,nsegments+1),ylim=c(0,40),box="both",
                     xlabel="item",xticks=list(logScale=FALSE),ylabel="cumulative demand",yticks=list(logScale=FALSE))
       
       x<-1:nsegments
@@ -160,14 +170,18 @@ server <- function(input, output) {
       g1<-addG(g1,dataPoint(data.frame(x=x[!use],y=z[!use]),fill="#FF0000"))
       if (useHTML) {
         output$spectrumHTML <- renderUI(HTML(g))
-        output$autismHTML <- renderUI(HTML(g1))
+        if (showG1)
+          output$autismHTML <- renderUI(HTML(g1))
       } else {
         output$spectrumPlot <- renderPlot({g})
+        if (showG1)
         output$autismPlot <- renderPlot({g1})
       }
       
       oldVals<-list(autismCapacity=input$autismCapacity,
                     autismBias=input$autismBias,
+                    autismBiasGroups=input$autismBiasGroups,
+                    autismBiasCost==input$autismBiasCost,
                     character=character)
       setBrawEnv("oldVals",oldVals)
     })
