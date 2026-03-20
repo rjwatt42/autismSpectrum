@@ -31,6 +31,7 @@ server <- function(input, output) {
       autismExponent<-input$autismExponent
       autismSD<-input$autismSD
       autismBias<-input$autismBias
+      biasCost<-4
       nrings<-7
       displayExponent<-2.5
       totalCapacity<-nsegments*autismCapacity
@@ -118,9 +119,10 @@ server <- function(input, output) {
           use<-which.max(groupMissingCapacity)
           index<-sum(groups[1:use])+1-(1:groups[use])
           capacity[index]<-capacity[index]+missing[index]*autismBias
-          gained<-sum(missing[index]*autismBias)*4
+          gained<-sum(missing[index]*autismBias)
           index<-setdiff(1:nsegments,index)
-          capacity[index]<-capacity[index]*(1-gained/sum(capacity[index]))
+          lost<-gained*biasCost/sum(capacity[index])
+          capacity[index]<-capacity[index]*(1-min(lost,1))
         }
         # capacity<-character*totalCapacity/requiredCapacity
       }
