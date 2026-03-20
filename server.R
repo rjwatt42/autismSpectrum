@@ -1,0 +1,173 @@
+
+source('basicPlot.R')
+source('brawOpts.R')
+library('ggplot2')
+
+server <- function(input, output) {
+  
+  observeEvent({c(input$New,input$autismExponent,input$autismSD,input$autismCapacity,input$autismBias,
+                  input$nsegments
+                  )}, 
+    {
+      
+      if (exists("braw.env")) {
+        oldVals<-braw.env$oldVals
+        changed<-all(c(
+          input$autismCapacity==oldVals$autismCapacity,
+          input$autismBias==oldVals$autismBias
+        )
+        )
+      } else changed<-TRUE
+      BrawOpts()
+      
+      useHTML<-TRUE
+      radius<-4
+      showpoints<-FALSE
+      
+      # nsegments<-input$nsegments
+      nsegments<-39
+      groups<-c(7,3,4,3,4,3,4,3,4,4)
+      autismCapacity<-input$autismCapacity/100
+      autismExponent<-input$autismExponent
+      autismSD<-input$autismSD
+      autismBias<-input$autismBias
+      nrings<-7
+      displayExponent<-2.5
+      totalCapacity<-nsegments*autismCapacity
+
+      localCorr<-0.95
+      if (changed) {
+        character<-c()
+        for (i in 1:length(groups)) {
+          nextGroup<-rnorm(1)*localCorr+rnorm(groups[i])*sqrt(1-localCorr^2)
+          character<-c(character,nextGroup)
+        }
+        character<-abs(character)*autismSD/radius
+        # character<-abs(rbeta(nsegments,1,10-autismSD))
+        character<-character^(1-autismExponent)
+        character[character>1]<-1
+      } else 
+        character<-oldVals$character
+      
+      hues<-c()
+      for (i in 1:length(groups)) {
+        nextHue<-sum(groups[1:i])-groups[i]/2+seq(-1,1,length.out=groups[i])
+        hues<-c(hues,nextHue)
+      }
+      hues<-(hues-1)/(nsegments-1)
+      
+      limits<-c(-1,1)*(radius+1)
+      # if (!exists('braw.env') || is.null(braw.env$plotLimits)) {
+        if (useHTML) setBrawEnv("graphicsType","HTML")
+        else         setBrawEnv("graphicsType","ggplot")
+        setBrawEnv('plotSize',c(350,350))
+        
+      g<-startPlot(xlim=c(-1,1)*(radius+0.5),ylim=c(-1,1)*(radius+0.5),box="none")
+      for (i in 1:nsegments) {
+        arc<-(i-1)/nsegments*2*pi+seq(0,2*pi/nsegments,length.out=360/nsegments)
+        for (ring in seq(0,1,length.out=nrings)) {
+          if (ring==1) width<-0.5 else width<-1
+            x<-c(sin(arc)*(ring+width/(nrings-1)),rev(sin(arc))*ring)
+            y<-c(cos(arc)*(ring+width/(nrings-1)),rev(cos(arc))*ring)
+            g<-addG(g,dataPolygon(data.frame(x=x*radius,y=y*radius),
+                                  fill=hsv(hues[i],ring^displayExponent,0.75+ring*0.25),
+                                  colour="white"))
+        }
+      }
+      for (i in 1:length(groups)) {
+        x<-c(0,sin(sum(groups[1:i])/nsegments*2*pi))*(radius+0.5)
+        y<-c(0,cos(sum(groups[1:i])/nsegments*2*pi))*(radius+0.5)
+        g<-addG(g,dataLine(data.frame(x=x,y=y),colour="black"))
+      }
+      
+      
+      arc<-seq(0,2*pi,length.out=nsegments+1)[1:nsegments]
+      x<-y<-xp<-yp<-c()
+      for (i in 1:nsegments) {
+        arc<-(i-1)/nsegments*2*pi+seq(0,2*pi/nsegments,length.out=360/nsegments)
+        x<-c(x,sin(arc)*character[i])
+        y<-c(y,cos(arc)*character[i])
+        xp<-c(xp,mean(sin(arc)*character[i]))
+        yp<-c(yp,mean(cos(arc)*character[i]))
+      }
+      profile<-data.frame(x=x*radius,y=y*radius)
+      points<-data.frame(x=xp*radius,y=yp*radius)
+      g<-addG(g,dataPolygon(profile,colour="black",fill="#00FF00",alpha=0.75))
+      
+      requiredCapacity<-sum(character)
+      if (totalCapacity>requiredCapacity) capacity<-character
+      else {
+        z<-unique(sort(character))
+        za<-z*0
+        for (j in 1:length(z)) 
+          za[j]<-sum(character>=z[j])*z[j]+sum(character[character<z[j]])
+        if (sum(!is.na(za))<2) capacityLimit<-totalCapacity/nsegments
+        else capacityLimit<-approx(za,z,totalCapacity)$y
+        if (is.na(capacityLimit)) capacityLimit<-totalCapacity/nsegments
+        capacity<-character
+        capacity[capacity>capacityLimit]<-capacityLimit
+        
+        if (autismBias>0) {
+          missing<-character-capacity
+          groupMissingCapacity<-c()
+          for (i in 1:length(groups)) {
+            index<-sum(groups[1:i])+1-(1:groups[i])
+            groupMissingCapacity<-c(groupMissingCapacity,
+                                    sum(missing[index]))
+          }
+          use<-which.max(groupMissingCapacity)
+          index<-sum(groups[1:use])+1-(1:groups[use])
+          capacity[index]<-capacity[index]+missing[index]*autismBias
+          gained<-sum(missing[index]*autismBias)*4
+          index<-setdiff(1:nsegments,index)
+          capacity[index]<-capacity[index]*(1-gained/sum(capacity[index]))
+        }
+        # capacity<-character*totalCapacity/requiredCapacity
+      }
+      # capacity[capacity>1]<-1
+      for (i in 1:nsegments) {
+        if (character[i]>capacity[i]) {
+          arc<-(i-1)/nsegments*2*pi+seq(0,2*pi/nsegments,length.out=360/nsegments)
+          x<-c(sin(arc)*capacity[i], sin(rev(arc))*character[i])
+          y<-c(cos(arc)*capacity[i], cos(rev(arc))*character[i])
+          g<-addG(g,dataPolygon(data.frame(x=x*radius,y=y*radius),
+                                colour="none",fill="red",alpha=0.8))
+        } 
+      }
+      
+      if (showpoints) {
+      fill<-hsv(hues,0,1)
+      colour<-hsv(hues,0,0.75-(character^displayExponent*0.75))
+      g<-addG(g,dataPoint(points,
+                          size=5*character,
+                          fill=fill,colour=colour,alpha=0.75+character*0.25))
+      }
+      
+      # second figure
+      
+      z<-cumsum(character)
+
+      setBrawEnv('plotSize',c(450,300))
+      g1<-startPlot(xlim=c(0,nsegments+1),ylim=c(0,max(z)*1.2),box="both",
+                    xlabel="item",xticks=list(logScale=FALSE),ylabel="cumulative demand",yticks=list(logScale=FALSE))
+      
+      x<-1:nsegments
+      g1<-addG(g1,dataPath(data.frame(x=x,y=z)))
+      use<-z<totalCapacity
+      g1<-addG(g1,dataPoint(data.frame(x=x[use],y=z[use]),fill="#00FF00"))
+      g1<-addG(g1,dataPoint(data.frame(x=x[!use],y=z[!use]),fill="#FF0000"))
+      if (useHTML) {
+        output$spectrumHTML <- renderUI(HTML(g))
+        output$autismHTML <- renderUI(HTML(g1))
+      } else {
+        output$spectrumPlot <- renderPlot({g})
+        output$autismPlot <- renderPlot({g1})
+      }
+      
+      oldVals<-list(autismCapacity=input$autismCapacity,
+                    autismBias=input$autismBias,
+                    character=character)
+      setBrawEnv("oldVals",oldVals)
+    })
+  
+}
