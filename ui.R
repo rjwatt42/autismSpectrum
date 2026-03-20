@@ -1,5 +1,7 @@
 fontSize=10
 localStyle=paste0("font-size:",format(fontSize) ,"pt;text-align: right;padding:0px;margin:0px;margin-right:5px;")
+refStyle=paste0("margin-left:20px;")
+refrefStyle=paste0("margin-left:40px;")
 colourChoices=list("black","white","red","green","blue","yellow")
 
 ui <- fluidPage(
@@ -9,7 +11,7 @@ ui <- fluidPage(
       paste0(".label {font-size: ",fontSize ,"; font-weight:bold;text-align: right;margin:0px;padding:0px;}")
     )),
     tags$style(HTML( # textInput
-      paste0(".form-control {font-size: ",fontSize ,"; height:24px; padding:0px 0px;margin:0px;}")
+      paste0(".form-control {font-size: ",fontSize ,"; height:24px; padding:0px 0px;margin:0px;text-align: right;}")
     )),
     tags$style(HTML( # selectInput
       paste0(".selectize-input {font-size: ",fontSize ,"; height:12px; width:60px; padding:0px; margin-right:-10px; margin-top:-5px;margin-bottom:-5px; min-height:10px;}"),
@@ -35,7 +37,7 @@ ui <- fluidPage(
   ),
   
   # App title ----
-  titlePanel("Autism"),
+  titlePanel("Modelling Autism?"),
   
   # Sidebar layout with input and output definitions ----
   sidebarLayout(
@@ -45,29 +47,31 @@ ui <- fluidPage(
       style = paste("background: ",'#aaa',';width:200px;height:500px',";margin-left: 0px;margin-right: -21px;margin-top: 10px;padding-right: -21px;border-radius:0px;"),
       # Input: 
       verticalLayout(
-        wellPanel(h4("Everyone"),
+        wellPanel(tags$div(style="margin-top:0px;font-weight:bold;","Everyone traits"),
                   tags$table(width="100%",class="MyTable",
+                             tags$tr(
+                               tags$td(width = "70%", tags$div(style=localStyle,HTML('<a href="https://doingpsychstats.wordpress.com/autism-diagram#Capacity">capacity</a> (5-100%):'))),
+                               tags$td(width = "30%", numericInput("autismCapacity", NULL, min = 5, max = 100, step = 5, value = 50))
+                             ),
                              tags$tr(
                                tags$td(width = "70%", tags$div(style=localStyle,"sensitivity (0-1):")),
                                tags$td(width = "30%", numericInput("autismSensitivity", NULL, min = 0, max = 1, step = 0.1, value = 0))
-                             ),
-                             tags$tr(
-                               tags$td(width = "70%", tags$div(style=localStyle,"capacity (5-100%):")),
-                               tags$td(width = "30%", numericInput("autismCapacity", NULL, min = 5, max = 100, step = 5, value = 50))
                              )
                   )
         ),
-        wellPanel(h4("Autism"),
+        wellPanel(tags$div(style="margin-top:0px;font-weight:bold;","Autism-specific traits"),
                   tags$table(width="100%",class="MyTable",
+                             tags$tr(tags$td(width = "70%",
+                                             tags$div(style=paste0(localStyle,"font-weight:bold;text-align: left;"),HTML('<a href="https://doingpsychstats.wordpress.com/autism-diagram#Autism">Input demand</a>'))) ),
                              tags$tr(
-                               tags$td(width = "70%", tags$div(style=localStyle,"score (0-1):")),
-                               tags$td(width = "30%", numericInput("autismExponent", NULL, min = 0, max = 1, step = 0.1, value = 0.25))
+                               tags$td(width = "70%", tags$div(style=localStyle,HTML('score (0-1):'))),
+                               tags$td(width = "30%", numericInput("autismExponent", NULL, min = 0, max = 1, step = 0.1, value = 0.2))
                              ),
                              tags$tr(tags$td(width = "70%",
-                                             tags$div(style=paste0(localStyle,"font-weight:bold;text-align: left;"),"Masking")) ),
+                                             tags$div(style=paste0(localStyle,"font-weight:bold;text-align: left;"),HTML('<a href="https://doingpsychstats.wordpress.com/autism-diagram#Masking">Masking</a>'))) ),
                              tags$tr(
-                               tags$td(width = "70%", tags$div(style=localStyle,"degree (0-1):")),
-                               tags$td(width = "30%", numericInput("autismBias", NULL, min = 0, max = 1, step = 0.1, value = 0.25))
+                               tags$td(width = "70%", tags$div(style=localStyle,"amount (0-1):")),
+                               tags$td(width = "30%", numericInput("autismBias", NULL, min = 0, max = 1, step = 0.1, value = 0.2))
                              ),
                              tags$tr(
                                tags$td(width = "70%", tags$div(style=localStyle,"no groups (1-4):")),
@@ -87,37 +91,42 @@ ui <- fluidPage(
         #                      )
         #           )
         # ),
-        wellPanel("Help links",
+        wellPanel(tags$div(style="margin-top:0px;font-weight:bold;","Help links"),
                   tags$table(width="100%",
                              tags$tr(tags$td(width = "100%",
-                                             tags$div(HTML('<a href="https://doingpsychstats.wordpress.com/autism-diagram/">General</a>'))) 
+                                             tags$div(style=refStyle,HTML('<a href="https://doingpsychstats.wordpress.com/autism-diagram/">General</a>'))) 
                                      ),
                              tags$tr(tags$td(width = "100%",
-                                             tags$div(HTML('<a href="https://doingpsychstats.wordpress.com/autism-diagram#Theory">Theory</a>'))) 
+                                             tags$div(style=refStyle,HTML('<a href="https://doingpsychstats.wordpress.com/autism-diagram#Theory">Theory</a>'))) 
                              ),
                              tags$tr(tags$td(width = "100%",
-                                             tags$div(HTML('<a href="https://doingpsychstats.wordpress.com/autism-diagram#Autism">Autism Score</a>'))) 
+                                             tags$div(style=refStyle,HTML('Everyone Traits'))) 
                              ),
                              tags$tr(tags$td(width = "70%",
-                                             tags$div(HTML('<a href="https://doingpsychstats.wordpress.com/autism-diagram#Capacity">Capacity</a>'))) 
+                                             tags$div(style=refrefStyle,HTML('<a href="https://doingpsychstats.wordpress.com/autism-diagram#Capacity">Capacity</a>'))) 
                              ),
                              tags$tr(tags$td(width = "70%",
-                                             tags$div(HTML('<a href="https://doingpsychstats.wordpress.com/autism-diagram#Masking">Masking</a>'))) 
+                                             tags$div(style=refrefStyle,HTML('<a href="https://doingpsychstats.wordpress.com/autism-diagram#Sensitivity">Sensitivity</a>'))) 
+                             ),
+                             tags$tr(tags$td(width = "100%",
+                                             tags$div(style=refStyle,HTML('Autism Traits'))) 
+                             ),
+                             tags$tr(tags$td(width = "100%",
+                                             tags$div(style=refrefStyle,HTML('<a href="https://doingpsychstats.wordpress.com/autism-diagram#Autism">Demand Score</a>'))) 
                              ),
                              tags$tr(tags$td(width = "70%",
-                                             tags$div(HTML('<a href="https://doingpsychstats.wordpress.com/autism-diagram#Sensitivity">Sensitivity</a>'))) 
+                                             tags$div(style=refrefStyle,HTML('<a href="https://doingpsychstats.wordpress.com/autism-diagram#Masking">Masking</a>'))) 
                              )
-                             )
+                  )
         ),
         actionButton(inputId = "New", label = "New" )
       ),
       width=3
-      
     ),
     
     # Main panel for displaying outputs ----
     mainPanel(
-      style = paste("background: ",'#fff',';','width:500px;height:500px;',"margin: 0px;padding: 0px;border-radius:0px;"),
+      style = paste("background: ",'#999',';','width:526px;height:500px;',"margin: 0px;margin-top:10px;padding: 0px;border-radius:0px;"),
       
       # Output: 
       htmlOutput(outputId = "spectrumHTML",width="250px",height="250px",border="0px",margin="0px"),
@@ -125,9 +134,7 @@ ui <- fluidPage(
       plotOutput(outputId = "spectrumPlot",width="250px",height="250px"),
       plotOutput(outputId = "autismPlot",width="450px",height="250px"),
       width=5
-      
     )
-    
   ),
   fluidRow(
     style = paste("background: ",'#fff',';','width:800px;height:50px;',"margin: 0px;padding: 0px;border-radius:0px;"),

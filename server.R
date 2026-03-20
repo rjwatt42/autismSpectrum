@@ -31,6 +31,9 @@ server <- function(input, output) {
       # nsegments<-input$nsegments
       nsegments<-39
       groups<-c(7,3,4,3,4,3,4,3,4,4)
+      labels<-c('social communication','affiliation','perspective taking','peer relations',
+                'repetitive behaviour','sensory interests','needs sameness','sensory sensitivities',
+                'restricted interests','other')
       autismCapacity<-input$autismCapacity/100
       autismExponent<-input$autismExponent
       autismSD<-1
@@ -58,10 +61,11 @@ server <- function(input, output) {
       
       hues<-c()
       for (i in 1:length(groups)) {
-        nextHue<-sum(groups[1:i])-groups[i]/2+seq(-1,1,length.out=groups[i])
+        nextHue<-(i-0.5)/(length(groups)+0.5)+seq(-1,1,length.out=groups[i])*0.01
+        # nextHue<-sum(groups[1:i])-groups[i]/2+seq(-1,1,length.out=groups[i])*0.01
         hues<-c(hues,nextHue)
       }
-      hues<-(hues-1)/(nsegments-1)
+      # hues<-(hues-1)/(nsegments-1)
       
       limits<-c(-1,1)*(radius+1)
       # if (!exists('braw.env') || is.null(braw.env$plotLimits)) {
@@ -85,6 +89,12 @@ server <- function(input, output) {
         x<-c(0,sin(sum(groups[1:i])/nsegments*2*pi))*(radius+0.5)
         y<-c(0,cos(sum(groups[1:i])/nsegments*2*pi))*(radius+0.5)
         g<-addG(g,dataLine(data.frame(x=x,y=y),colour="black"))
+        
+        a<-(sum(groups[1:i])-groups[i]/2)/nsegments*2*pi
+        x<-sin(a)*radius*1.1
+        y<-cos(a)*radius*1.1
+        g<-addG(g,dataText(data.frame(x=x,y=y),label=labels[i],
+                           hjust=0.5,angle=pi/2-a*57.296,size=0.9))
       }
       
       
@@ -99,7 +109,7 @@ server <- function(input, output) {
       }
       profile<-data.frame(x=x*radius,y=y*radius)
       points<-data.frame(x=xp*radius,y=yp*radius)
-      g<-addG(g,dataPolygon(profile,colour="black",fill="#00FF00",alpha=0.75))
+      g<-addG(g,dataPolygon(profile,colour="black",fill="#00FF00",alpha=0.5))
       
       requiredCapacity<-sum(character)
       if (totalCapacity>requiredCapacity) capacity<-character
