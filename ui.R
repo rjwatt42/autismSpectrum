@@ -67,7 +67,7 @@ ui <- fluidPage(
                                              tags$div(style=paste0(localStyle,"font-weight:bold;text-align: left;"),HTML('<a href="https://doingpsychstats.wordpress.com/autism-diagram#Autism">Input demand</a>'))) ),
                              tags$tr(
                                tags$td(width = "70%", tags$div(style=localStyle,HTML('score (0-1):'))),
-                               tags$td(width = "30%", numericInput("autismExponent", NULL, min = 0, max = 1, step = 0.1, value = 0.2))
+                               tags$td(width = "30%", numericInput("autismExponent", NULL, min = 0, max = 1, step = 0.1, value = 0.6))
                              ),
                              tags$tr(tags$td(width = "70%",
                                              tags$div(style=paste0(localStyle,"font-weight:bold;text-align: left;"),HTML('<a href="https://doingpsychstats.wordpress.com/autism-diagram#Masking">Masking</a>'))) ),
@@ -85,14 +85,14 @@ ui <- fluidPage(
                              )
                   )
         ),
-        # wellPanel(h4("Measures"),
-        #           tags$table(width="100%",
-        #                      tags$tr(
-        #                        tags$td(width = "50%", tags$div(style=localStyle,"no measures:")),
-        #                        tags$td(width = "50%", numericInput("nsegments", NULL, min = 4, max = 49, step = 5, value = 39))
-        #                      )
-        #           )
-        # ),
+        wellPanel(tags$div(style="margin-top:0px;font-weight:bold;","Display"),
+                  tags$table(width="100%",
+                             tags$tr(
+                               tags$td(width = "50%", tags$div(style=localStyle,"labels:")),
+                               tags$td(width = "50%", selectInput("labels", NULL,c("original","positive"), selected = "Positive",selectize=FALSE))
+                             )
+                  )
+        ),
         div(style = "display:inline-block; float:right;", actionButton(inputId = "New", label = "Make Person" )),
       #   wellPanel(style="background:#aaa;border:none;",
       #     tags$div(style="margin-top:0px;font-weight:bold;","Help links"),
@@ -129,7 +129,7 @@ ui <- fluidPage(
     
     # Main panel for displaying outputs ----
     mainPanel(
-      style = paste("background: ",'#FFF',';','width:526px;height:500px;',"margin: 0px;margin-top:10px;padding: 0px;border-radius:0px;"),
+      style = paste("background: ",'#FFF',';','width:526px;height:500px;',"margin: 0px;margin-top:10px;margin-left:60px;padding: 0px;border-radius:0px;"),
       
       # Output: 
       htmlOutput(outputId = "spectrumHTML",width="250px",height="250px",border="0px",margin="0px"),
@@ -141,7 +141,7 @@ ui <- fluidPage(
   ),
   fluidRow(
     style = paste("background: ",'#fff',';','width:240px;height:100px;',"margin: 0px;padding: 0px;border-radius:0px;"),
-    wellPanel(tags$div(style="font-weight:bold;",'Help'),
+    wellPanel(tags$div(style="font-weight:bold;",'Help Links'),
               tags$table(width="100%",
                          tags$tr(
                            tags$td(tags$div('  ')),

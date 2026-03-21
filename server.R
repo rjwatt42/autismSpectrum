@@ -2,12 +2,16 @@
 source('basicPlot.R')
 source('brawOpts.R')
 library('ggplot2')
+library('pracma')
 
 server <- function(input, output) {
   
+  
+  
   observeEvent({c(input$New,input$autismExponent,input$autismSensitivity,input$autismCapacity,
                   input$autismBias,input$autismBiasGroups,input$autismBiasCost,
-                  input$nsegments
+                  input$nsegments,
+                  input$labels
                   )}, 
     {
       
@@ -23,18 +27,6 @@ server <- function(input, output) {
       } else changed<-TRUE
       BrawOpts()
 
-      useHTML<-TRUE
-      radius<-4
-      fullRadius<-4.75
-      showpoints<-FALSE
-      showG1<-FALSE
-      
-      # nsegments<-input$nsegments
-      nsegments<-39
-      groups<-c(7,3,4,3,4,3,4,3,4,4)
-      labels<-c('basic\nsocial communication','affiliation','perspective taking','peer relations',
-                'repetitive behaviour','sensory interests','insistance\non sameness','sensory\nsensitivities',
-                'restricted interests','other')
       autismCapacity<-input$autismCapacity/100
       autismExponent<-input$autismExponent
       autismSD<-1
@@ -42,15 +34,63 @@ server <- function(input, output) {
       autismBiasGroups<-input$autismBiasGroups
       autismBiasCost<-input$autismBiasCost*10
       autismSensitivity<-input$autismSensitivity
+      
+      nsegments<-39
+      groups<-c(7,3,4,3,4,3,4,3,4,4)
+      totalCapacity<-nsegments*autismCapacity
+      
+      useHTML<-TRUE
+      radius<-4
+      fullRadius<-4.75
+      showpoints<-FALSE
+      showG1<-FALSE
+      OK<-"#00FF00"
+      notOK<-"#FF0000"      
+      OK<-"#FFF"
+      notOK<-"#000"      
+      
+      # nsegments<-input$nsegments
+      switch (input$labels,
+              "original"={
+                labels<-c('basic\nsocial communication','affiliation','perspective taking','peer relations',
+                          'repetitive behaviour','sensory interests','insistance\non sameness','sensory\nsensitivities',
+                          'restricted interests','other')
+                useGroups<-1:10
+              },
+              "positive"={
+                labels<-c('people\nsensitivity','affiliation','perspective taking','peer relations',
+                          'repetitive behaviour','sensory interests','preference\nfor predictability','sensory\nsensitivity',
+                          'specialized interests','other')
+                useGroups<-c(2,4,1,3,8,7,9,6,5,10) # see pathModel.R
+              },
+              {}
+      )
+      groups<-groups[useGroups]
+      labels<-labels[useGroups]
+      
       nrings<-7
       displayExponent<-2.5
-      totalCapacity<-nsegments*autismCapacity
+      hues<-c()
+      for (i in 1:length(groups)) {
+        nextHue<-(useGroups[i]-0.5)/(length(groups)+0.5)+seq(-1,1,length.out=groups[i])*0.01
+        hues<-c(hues,nextHue)
+      }
+      hues<-hues^1.2
 
       localCorr<-0.95
       if (changed) {
+        seq<-c(2,4,1,3,8,7,9,6,5,10)
+        corrs<-c(0.00,0.62,0.73,0.73,0.34,0.63,0.61,0.62,0.71,0)
+        v<-0
+        group_v<-rep(0,10)
+        for (i in 1:length(groups)) {
+          group_v[seq[i]]<-v*corrs[i]+rnorm(1)*sqrt(1-corrs[i]^2)
+          v<-group_v[seq[i]]
+        }
         character<-c()
         for (i in 1:length(groups)) {
-          nextGroup<-rnorm(1)*localCorr+rnorm(groups[i])*sqrt(1-localCorr^2)
+          nextv<-group_v[i]
+          nextGroup<-nextv*localCorr+rnorm(groups[i])*sqrt(1-localCorr^2)
           character<-c(character,nextGroup)
         }
         character<-abs(character)*autismSD/radius
@@ -60,12 +100,6 @@ server <- function(input, output) {
       } else 
         character<-oldVals$character
       
-      hues<-c()
-      for (i in 1:length(groups)) {
-        nextHue<-(i-0.5)/(length(groups)+0.5)+seq(-1,1,length.out=groups[i])*0.01
-        # nextHue<-sum(groups[1:i])-groups[i]/2+seq(-1,1,length.out=groups[i])*0.01
-        hues<-c(hues,nextHue)
-      }
 
         if (useHTML) setBrawEnv("graphicsType","HTML")
         else         setBrawEnv("graphicsType","ggplot")
@@ -108,7 +142,7 @@ server <- function(input, output) {
       }
       profile<-data.frame(x=x*radius,y=y*radius)
       points<-data.frame(x=xp*radius,y=yp*radius)
-      g<-addG(g,dataPolygon(profile,colour="black",fill="#00FF00",alpha=0.5))
+      g<-addG(g,dataPolygon(profile,colour="black",fill=OK,alpha=0.5))
       
       requiredCapacity<-sum(character)
       if (totalCapacity>requiredCapacity) capacity<-character
@@ -152,7 +186,7 @@ server <- function(input, output) {
           x<-c(sin(arc)*capacity[i], sin(rev(arc))*character[i])
           y<-c(cos(arc)*capacity[i], cos(rev(arc))*character[i])
           g<-addG(g,dataPolygon(data.frame(x=x*radius,y=y*radius),
-                                colour="none",fill="red",alpha=0.8))
+                                colour="none",fill=notOK,alpha=0.5))
         } 
       }
       
@@ -175,8 +209,8 @@ server <- function(input, output) {
       x<-1:nsegments
       g1<-addG(g1,dataPath(data.frame(x=x,y=z)))
       use<-z<totalCapacity
-      g1<-addG(g1,dataPoint(data.frame(x=x[use],y=z[use]),fill="#00FF00"))
-      g1<-addG(g1,dataPoint(data.frame(x=x[!use],y=z[!use]),fill="#FF0000"))
+      g1<-addG(g1,dataPoint(data.frame(x=x[use],y=z[use]),fill=OK))
+      g1<-addG(g1,dataPoint(data.frame(x=x[!use],y=z[!use]),fill=notOK))
       if (useHTML) {
         output$spectrumHTML <- renderUI(HTML(g))
         if (showG1)
