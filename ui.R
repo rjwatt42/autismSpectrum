@@ -158,13 +158,14 @@ ui <- fluidPage(
                            tags$td(tags$div('  ')),
                            tags$td(tags$div('  ')),
                            tags$td(
-                                   tags$div(HTML('<a href="https://doingpsychstats.wordpress.com/autism-diagram#Capacity">Capacity</a>'))),
+                             tags$div(HTML('<a href="https://doingpsychstats.wordpress.com/autism-diagram#Capacity">Capacity</a>'))),
                            tags$td(
                              tags$div(HTML('<a href="https://doingpsychstats.wordpress.com/autism-diagram#Autism">Demand Score</a>')))
                          ),
                          tags$tr(
                            tags$td(tags$div('  ')),
-                           tags$td(tags$div('  ')),
+                           tags$td(
+                             tags$div(HTML('<a href="https://doingpsychstats.wordpress.com/autism-diagram#ToDo">To do</a>'))),
                            tags$td(
                              tags$div(HTML('<a href="https://doingpsychstats.wordpress.com/autism-diagram#Sensitivity">Sensitivity</a>'))),
                            tags$td(
