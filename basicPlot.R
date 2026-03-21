@@ -714,12 +714,16 @@ drawText<-function(data,label, hjust=0, vjust=0, colour="#000000",fill="white",s
                                       '" dx="0" dy="-',sub_super_offset,'">',
                                       '\\1</tspan><tspan',valign,' dx="0" dy="',sub_super_offset,'">'),
                                thisLabel)
-             thisLabel<-paste0(
+               thisLabel<-unlist(strsplit(thisLabel,'\n'))
+               x[i]<-x[i]-(length(thisLabel)-1)*12*sin(angle/57.296)
+               y[i]<-y[i]-(length(thisLabel)-1)*12*cos(angle/57.296)
+               for (j in 1:length(thisLabel)) {
+             thisLabel[j]<-paste0(
                '<tspan',halign,valign,
                ' dx=',dx,'px',
                ' dy=',-dy,'px',
                '>',
-               thisLabel,
+               thisLabel[j],
                '</tspan>'
              )
              
@@ -735,9 +739,12 @@ drawText<-function(data,label, hjust=0, vjust=0, colour="#000000",fill="white",s
                             ' font-weight="',fontface,'"',
                             ' font-family="Arial, Helvetica, sans-serif"',
                             '>',
-                            thisLabel,
+                            thisLabel[j],
                             '</text>'
              )
+             y[i]<-y[i]+12*cos(angle/57.296)
+             x[i]<-x[i]+12*sin(angle/57.296)
+               }
            }
            g<-labels
          },

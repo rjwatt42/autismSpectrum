@@ -18,9 +18,9 @@ ui <- fluidPage(
       paste0(".selectize-dropdown { font-size: ",fontSize ,";line-height:10px}")
     )),
     tags$style(HTML( # action button
-      paste0(".col-sm-3 button {font-size:",fontSize ,";font-weight:Bold;color:white; background-color: #005886;height:20px;padding-top:0px;padding-bottom:0px;padding-left:4px;padding-right:4px;margin-bottom:4px;margin-right:12px;margin-top:4px;margin-left:0px}"),
-      paste0( ".col-sm-2 button {font-size:",fontSize ,";font-weight:Bold;color:white; background-color: #005886;height:20px;padding-top:0px;padding-bottom:0px;padding-left:4px;padding-right:4px;margin-bottom:4px;margin-right:12px;margin-top:4px;margin-left:0px}"),
-      paste0(".col-sm-1 button {font-size:",fontSize ,";font-weight:Bold;color:white; background-color: #005886;height:20px;padding-top:0px;padding-bottom:0px;padding-left:4px;padding-right:4px;margin-bottom:4px;margin-right:12px;margin-top:4px;margin-left:0px}")
+      paste0(".col-sm-3 button {font-size:",fontSize , ";font-weight:Bold;color:white; background-color: #005886;height:20px;padding-top:0px;padding-bottom:0px;padding-left:4px;padding-right:4px;margin-bottom:4px;margin-right:12px;margin-top:4px;margin-left:0px}"),
+      paste0(".col-sm-2 button {font-size:",fontSize , ";font-weight:Bold;color:white; background-color: #005886;height:20px;padding-top:0px;padding-bottom:0px;padding-left:4px;padding-right:4px;margin-bottom:4px;margin-right:12px;margin-top:4px;margin-left:0px}"),
+      paste0(".col-sm-1 button {font-size:",fontSize , ";font-weight:Bold;color:white; background-color: #005886;height:20px;padding-top:0px;padding-bottom:0px;padding-left:4px;padding-right:4px;margin-bottom:4px;margin-right:12px;margin-top:4px;margin-left:0px}")
     )),
     tags$style(HTML( # well panels
       ".well {padding:5px; margin:0px;margin-bottom:8px;margin-left:0px;margin-right:0px;} "
@@ -37,20 +37,22 @@ ui <- fluidPage(
   ),
   
   # App title ----
-  titlePanel("Modelling Autism?"),
+  # titlePanel("Modelling Autism?"),
   
   # Sidebar layout with input and output definitions ----
   sidebarLayout(
     
     # Sidebar panel for inputs ----
     sidebarPanel(
-      style = paste("background: ",'#aaa',';width:200px;height:500px',";margin-left: 0px;margin-right: -21px;margin-top: 10px;padding-right: -21px;border-radius:0px;"),
+      style = paste("background: ",'#aaa',';width:200px;height:350px',";margin-left: 0px;margin-right: -21px;margin-top: 10px;padding-right: -21px;border-radius:0px;"),
       # Input: 
       verticalLayout(
-        wellPanel(tags$div(style="margin-top:0px;font-weight:bold;","Everyone traits"),
+        wellPanel(tags$div(style="margin-top:0px;font-weight:bold;","General traits"),
                   tags$table(width="100%",class="MyTable",
+                             tags$tr(tags$td(width = "70%",
+                                             tags$div(style=paste0(localStyle,"font-weight:bold;text-align: left;"),HTML('<a href="https://doingpsychstats.wordpress.com/autism-diagram#Capacity">Cognitive</a>'))) ),
                              tags$tr(
-                               tags$td(width = "70%", tags$div(style=localStyle,HTML('<a href="https://doingpsychstats.wordpress.com/autism-diagram#Capacity">capacity</a> (5-100%):'))),
+                               tags$td(width = "70%", tags$div(style=localStyle,'capacity (5-100%):')),
                                tags$td(width = "30%", numericInput("autismCapacity", NULL, min = 5, max = 100, step = 5, value = 50))
                              ),
                              tags$tr(
@@ -91,42 +93,43 @@ ui <- fluidPage(
         #                      )
         #           )
         # ),
-        wellPanel(tags$div(style="margin-top:0px;font-weight:bold;","Help links"),
-                  tags$table(width="100%",
-                             tags$tr(tags$td(width = "100%",
-                                             tags$div(style=refStyle,HTML('<a href="https://doingpsychstats.wordpress.com/autism-diagram/">General</a>'))) 
-                                     ),
-                             tags$tr(tags$td(width = "100%",
-                                             tags$div(style=refStyle,HTML('<a href="https://doingpsychstats.wordpress.com/autism-diagram#Theory">Theory</a>'))) 
-                             ),
-                             tags$tr(tags$td(width = "100%",
-                                             tags$div(style=refStyle,HTML('Everyone Traits'))) 
-                             ),
-                             tags$tr(tags$td(width = "70%",
-                                             tags$div(style=refrefStyle,HTML('<a href="https://doingpsychstats.wordpress.com/autism-diagram#Capacity">Capacity</a>'))) 
-                             ),
-                             tags$tr(tags$td(width = "70%",
-                                             tags$div(style=refrefStyle,HTML('<a href="https://doingpsychstats.wordpress.com/autism-diagram#Sensitivity">Sensitivity</a>'))) 
-                             ),
-                             tags$tr(tags$td(width = "100%",
-                                             tags$div(style=refStyle,HTML('Autism Traits'))) 
-                             ),
-                             tags$tr(tags$td(width = "100%",
-                                             tags$div(style=refrefStyle,HTML('<a href="https://doingpsychstats.wordpress.com/autism-diagram#Autism">Demand Score</a>'))) 
-                             ),
-                             tags$tr(tags$td(width = "70%",
-                                             tags$div(style=refrefStyle,HTML('<a href="https://doingpsychstats.wordpress.com/autism-diagram#Masking">Masking</a>'))) 
-                             )
-                  )
-        ),
-        actionButton(inputId = "New", label = "New" )
+        div(style = "display:inline-block; float:right;", actionButton(inputId = "New", label = "Make Person" )),
+      #   wellPanel(style="background:#aaa;border:none;",
+      #     tags$div(style="margin-top:0px;font-weight:bold;","Help links"),
+      #             tags$table(width="100%",
+      #                        tags$tr(tags$td(width = "100%",
+      #                                        tags$div(style=refStyle,HTML('<a href="https://doingpsychstats.wordpress.com/autism-diagram/">General</a>'))) 
+      #                                ),
+      #                        tags$tr(tags$td(width = "100%",
+      #                                        tags$div(style=refStyle,HTML('<a href="https://doingpsychstats.wordpress.com/autism-diagram#Theory">Theory</a>'))) 
+      #                        ),
+      #                        tags$tr(tags$td(width = "100%",
+      #                                        tags$div(style=refStyle,HTML('Everyone Traits'))) 
+      #                        ),
+      #                        tags$tr(tags$td(width = "70%",
+      #                                        tags$div(style=refrefStyle,HTML('<a href="https://doingpsychstats.wordpress.com/autism-diagram#Capacity">Capacity</a>'))) 
+      #                        ),
+      #                        tags$tr(tags$td(width = "70%",
+      #                                        tags$div(style=refrefStyle,HTML('<a href="https://doingpsychstats.wordpress.com/autism-diagram#Sensitivity">Sensitivity</a>'))) 
+      #                        ),
+      #                        tags$tr(tags$td(width = "100%",
+      #                                        tags$div(style=refStyle,HTML('Autism Traits'))) 
+      #                        ),
+      #                        tags$tr(tags$td(width = "100%",
+      #                                        tags$div(style=refrefStyle,HTML('<a href="https://doingpsychstats.wordpress.com/autism-diagram#Autism">Demand Score</a>'))) 
+      #                        ),
+      #                        tags$tr(tags$td(width = "70%",
+      #                                        tags$div(style=refrefStyle,HTML('<a href="https://doingpsychstats.wordpress.com/autism-diagram#Masking">Masking</a>'))) 
+      #                        )
+      #             )
+      #   )
       ),
       width=3
     ),
     
     # Main panel for displaying outputs ----
     mainPanel(
-      style = paste("background: ",'#999',';','width:526px;height:500px;',"margin: 0px;margin-top:10px;padding: 0px;border-radius:0px;"),
+      style = paste("background: ",'#FFF',';','width:526px;height:500px;',"margin: 0px;margin-top:10px;padding: 0px;border-radius:0px;"),
       
       # Output: 
       htmlOutput(outputId = "spectrumHTML",width="250px",height="250px",border="0px",margin="0px"),
@@ -137,13 +140,47 @@ ui <- fluidPage(
     )
   ),
   fluidRow(
-    style = paste("background: ",'#fff',';','width:800px;height:50px;',"margin: 0px;padding: 0px;border-radius:0px;"),
-    wellPanel("References",
+    style = paste("background: ",'#fff',';','width:240px;height:100px;',"margin: 0px;padding: 0px;border-radius:0px;"),
+    wellPanel(tags$div(style="font-weight:bold;",'Help'),
+              tags$table(width="100%",
+                         tags$tr(
+                           tags$td(tags$div('  ')),
+                           tags$td(
+                             tags$div(HTML('<a href="https://doingpsychstats.wordpress.com/autism-diagram#Theory"><b>Theory</b></a>'))),
+                           tags$td(
+                             tags$div(HTML('<a href="https://doingpsychstats.wordpress.com/autism-diagram/"><b>General</b></a>'))),
+                           tags$td(
+                             tags$div(HTML('<a href="https://doingpsychstats.wordpress.com/autism-diagram/"><b>Autism</b></a>'))),
+                           tags$td(tags$div('  ')),
+                           tags$td(tags$div('  '))
+                         ),
+                         tags$tr(
+                           tags$td(tags$div('  ')),
+                           tags$td(tags$div('  ')),
+                           tags$td(
+                                   tags$div(HTML('<a href="https://doingpsychstats.wordpress.com/autism-diagram#Capacity">Capacity</a>'))),
+                           tags$td(
+                             tags$div(HTML('<a href="https://doingpsychstats.wordpress.com/autism-diagram#Autism">Demand Score</a>')))
+                         ),
+                         tags$tr(
+                           tags$td(tags$div('  ')),
+                           tags$td(tags$div('  ')),
+                           tags$td(
+                             tags$div(HTML('<a href="https://doingpsychstats.wordpress.com/autism-diagram#Sensitivity">Sensitivity</a>'))),
+                           tags$td(
+                                   tags$div(HTML('<a href="https://doingpsychstats.wordpress.com/autism-diagram#Masking">Masking</a>'))) 
+                         )
+              )
+    )
+    ),
+  fluidRow(
+    style = paste("background: ",'#fff',';','width:800px;height:100px;',"margin: 0px;padding: 0px;border-radius:0px;"),
+    wellPanel(tags$div(style="font-weight:bold;",'References'),
               tags$table(width="100%",
                          tags$tr(tags$td(width = "70%",
                                          tags$div(HTML('1. <a href="https://pubmed.ncbi.nlm.nih.gov/36628521/">Frazier et al (2023)</a> "The Autism Symptom Dimensions Questionnaire: Development and psychometric evaluation..." Dev Med Child Neurol. 65:1081-1092. doi: 10.1111/dmcn.15497'))) 
                          ),
-                         tags$tr(tags$td(width = "70%",height = "10px")),
+                         tags$tr(tags$td(width = "70%",height = "5px")),
                          tags$tr(tags$td(width = "70%",
                                          tags$div(HTML('2. <a href="https://www.scientificamerican.com/article/the-autism-spectrum-isnt-a-sliding-scale-39-traits-show-the-complexity/">Parshall and Montanez (2026). </a> "Here’s what the autism spectrum really looks like" Scientific American (Mar 17, 2026)'))) 
                          )

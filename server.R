@@ -25,14 +25,15 @@ server <- function(input, output) {
 
       useHTML<-TRUE
       radius<-4
+      fullRadius<-4.75
       showpoints<-FALSE
       showG1<-FALSE
       
       # nsegments<-input$nsegments
       nsegments<-39
       groups<-c(7,3,4,3,4,3,4,3,4,4)
-      labels<-c('social communication','affiliation','perspective taking','peer relations',
-                'repetitive behaviour','sensory interests','needs sameness','sensory sensitivities',
+      labels<-c('basic\nsocial communication','affiliation','perspective taking','peer relations',
+                'repetitive behaviour','sensory interests','insistance\non sameness','sensory\nsensitivities',
                 'restricted interests','other')
       autismCapacity<-input$autismCapacity/100
       autismExponent<-input$autismExponent
@@ -65,15 +66,13 @@ server <- function(input, output) {
         # nextHue<-sum(groups[1:i])-groups[i]/2+seq(-1,1,length.out=groups[i])*0.01
         hues<-c(hues,nextHue)
       }
-      # hues<-(hues-1)/(nsegments-1)
-      
-      limits<-c(-1,1)*(radius+1)
-      # if (!exists('braw.env') || is.null(braw.env$plotLimits)) {
+
         if (useHTML) setBrawEnv("graphicsType","HTML")
         else         setBrawEnv("graphicsType","ggplot")
+        setBrawEnv("graphBack","#DDDDDD")
         setBrawEnv('plotSize',c(1,1)*525)
         
-      g<-startPlot(xlim=c(-1,1)*(radius+0.5),ylim=c(-1,1)*(radius+0.5),box="none")
+      g<-startPlot(xlim=c(-1,1)*fullRadius,ylim=c(-1,1)*fullRadius,box="none",backC="white")
       for (i in 1:nsegments) {
         arc<-(i-1)/nsegments*2*pi+seq(0,2*pi/nsegments,length.out=360/nsegments)
         for (ring in seq(0,1,length.out=nrings)) {
@@ -93,7 +92,7 @@ server <- function(input, output) {
         a<-(sum(groups[1:i])-groups[i]/2)/nsegments*2*pi
         x<-sin(a)*radius*1.1
         y<-cos(a)*radius*1.1
-        g<-addG(g,dataText(data.frame(x=x,y=y),label=labels[i],
+        g<-addG(g,dataText(data.frame(x=x,y=y),label=labels[i],colour="black",
                            hjust=0.5,angle=pi/2-a*57.296,size=0.9))
       }
       
