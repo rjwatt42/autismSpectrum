@@ -1,10 +1,10 @@
 
 
 nsegments<-39
-autismCapacity<-50
+generalCapacity<-50
 nrings<-7
 displayExponent<-2.5
-totalCapacity<-nsegments*qnorm(0.5+autismCapacity/100/2)
+totalCapacity<-nsegments*qnorm(0.5+generalCapacity/100/2)
 autismExponent<-0.65
 
 radius<-4

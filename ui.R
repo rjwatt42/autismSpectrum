@@ -53,7 +53,7 @@ ui <- fluidPage(
                                              tags$div(style=paste0(localStyle,"font-weight:bold;text-align: left;"),HTML('<a href="https://doingpsychstats.wordpress.com/autism-diagram#Capacity">Cognitive</a>'))) ),
                              tags$tr(
                                tags$td(width = "70%", tags$div(style=localStyle,'capacity (5-100%):')),
-                               tags$td(width = "30%", numericInput("autismCapacity", NULL, min = 5, max = 100, step = 5, value = 50))
+                               tags$td(width = "30%", numericInput("generalCapacity", NULL, min = 5, max = 100, step = 5, value = 50))
                              ),
                              tags$tr(
                                tags$td(width = "70%", tags$div(style=localStyle,"sensitivity (0-1):")),
