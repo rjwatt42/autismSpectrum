@@ -9,9 +9,8 @@ server <- function(input, output) {
   
   
   observeEvent({c(input$New,input$autismExponent,input$autismSensitivity,input$generalCapacity,
-                  input$autismBias,input$autismBiasGroups,input$autismBiasCost,input$labels,
-                  input$nsegments,
-                  input$labels
+                  input$autismBias,input$autismBiasGroups,input$autismBiasCost,
+                  input$display
                   )}, 
     {
       
@@ -26,7 +25,7 @@ server <- function(input, output) {
           input$autismBias==oldVals$autismBias,
           input$autismBiasGroups==oldVals$autismBiasGroups,
           input$autismBiasCost==oldVals$autismBiasCost,
-          input$labels==oldVals$labels
+          input$display==oldVals$display
         )
         )
       } else changed<-TRUE
@@ -47,9 +46,31 @@ server <- function(input, output) {
       # ASDQ structure
       nsegments<-39
       groups<-c(7,3,4,3,4,3,4,3,4,4)
-      betterSequence<-c(2,4,1,3,8,7,9,6,5,10)
+      betterSequence<-c(2,4,1,3,8,7,9,6,5,10) # see pathModel.R
       corrsSequence<-c(0.00,0.62,0.73,0.73,0.34,0.63,0.61,0.62,0.71,0)
 
+      # colours for circle
+      nrings<-7
+      displayExponent<-2.5
+      # hh<-sort(rgb2hsv(col2rgb(hcl.colors(1000)))[1,])
+      groupHues<-rep(0,length(groups))
+      nextHue<-0
+      for (i in 1:length(groups)) {
+        use<-which(betterSequence==i)
+        nextHue<-nextHue+(1-pnorm(corrsSequence[i],0.5,0.2))
+        groupHues[betterSequence[i]]<-nextHue
+      }
+      groupHues<-(groupHues-min(groupHues))/(max(groupHues)-min(groupHues))
+      # groupHues<-hh[floor(groupHues*999)+1]
+      hues<-c()
+      for (i in 1:length(groups)) {
+        huesAdd<-groupHues[i]+seq(-1,1,length.out=groups[i])*0.0
+        hues<-c(hues,huesAdd)
+      }
+      hues<-hues-min(hues)
+      hues<-hues/max(hues[1:35])*0.7
+      hues<-hues^1.2
+      
       # get the basic simulation parameters from the ui
       generalCapacity<-input$generalCapacity/100
       autismExponent<-input$autismExponent
@@ -88,38 +109,27 @@ server <- function(input, output) {
                     autismBias=input$autismBias,
                     autismBiasGroups=input$autismBiasGroups,
                     autismBiasCost=input$autismBiasCost,
-                    labels=input$labels,
+                    display=input$display,
                     character=character)
       setBrawEnv("oldVals",oldVals)
       
       # are we using the original sequence of ASDQ
       # or the better one, including more positive labels
-      switch (input$labels,
+      switch (input$display,
               "original"={
                 labels<-c('basic\nsocial communication','affiliation','perspective taking','peer relations',
                           'repetitive behaviour','sensory interests','insistance\non sameness','sensory\nsensitivities',
                           'restricted interests','other')
-                useGroups<-1:10
-                useCharacter<-1:nsegments
+                useGroups<-1:10 
               },
               "positive"={
                 labels<-c('people\nsensitivity','affiliation','perspective taking','peer relations',
                           'repetitive\nbehaviour','sensory\ninterests','preference\nfor predictability','sensory\nsensitivity',
                           'specialized\ninterests','other')
-                useGroups<-betterSequence # see pathModel.R
+                useGroups<-betterSequence
               },
               {}
       )
-      
-      nrings<-7
-      displayExponent<-2.5
-      hues<-c()
-      for (i in 1:length(groups)) {
-        use<-which(betterSequence==i)
-        nextHue<-(use-0.5)/(length(groups)-1+0.5)+seq(-1,1,length.out=groups[i])*0.01
-        hues<-c(hues,nextHue)
-      }
-      hues<-hues^1.2
 
       # resequence the sectors of the diagram
       useCharacter<-c()

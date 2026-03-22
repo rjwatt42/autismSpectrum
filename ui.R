@@ -88,8 +88,8 @@ ui <- fluidPage(
         wellPanel(tags$div(style="margin-top:0px;font-weight:bold;","Display"),
                   tags$table(width="100%",
                              tags$tr(
-                               tags$td(width = "50%", tags$div(style=localStyle,"labels:")),
-                               tags$td(width = "50%", selectInput("labels", NULL,c("original","positive"), selected = "Positive",selectize=FALSE))
+                               tags$td(width = "50%", tags$div(style=localStyle,"display:")),
+                               tags$td(width = "50%", selectInput("display", NULL,c("original","positive"), selected = "Positive",selectize=FALSE))
                              ),
                              tags$tr(
                                tags$td(width = "50%", tags$div(style=localStyle," ")),
