@@ -92,6 +92,10 @@ ui <- fluidPage(
                                tags$td(width = "50%", selectInput("display", NULL,c("original","positive"), selected = "Positive",selectize=FALSE))
                              ),
                              tags$tr(
+                               tags$td(width = "50%", tags$div(style=localStyle,"dimensions:")),
+                               tags$td(width = "50%", selectInput("dimensions", NULL,c("full","clean"), selected = "full",selectize=FALSE))
+                             ),
+                             tags$tr(
                                tags$td(width = "50%", tags$div(style=localStyle," ")),
                                tags$td(width = "50%", div(style = "display:inline-block; float:right;", actionButton(inputId = "New", label = "Make Person" )))
                              )

@@ -24,39 +24,49 @@ corrs<-matrix(c(
   0.35,0.25,0.37,0.34,0.53,0.62,0.61,0.57,rep(0,1)
 ),9,9)
 
-corrs<-corrs+t(corrs)+pracma::eye(9)
-rownames(corrs)<-paste0("v",format(1:9))
-colnames(corrs)<-paste0("v",format(1:9))
+# removing 5 & 7
+vars<-c(1:4,6,8:9)
+corrs<-corrs[vars,]
+corrs<-corrs[,vars]
+nvar<-nrow(corrs)
 
-allModels<-permutations(9)
+corrs<-corrs+t(corrs)+pracma::eye(nvar)
+rownames(corrs)<-paste0("v",format(vars))
+colnames(corrs)<-paste0("v",format(vars))
+
+allModels<-permutations(nvar)
 # use<-max(which(allModels[,1]==1))
 # allModels<-allModels[1:use,]
 
-nm<-nrow(allModels)
+nmodel<-nrow(allModels)
+result<-c()
 startm<-length(result)+1
-result<-c(result,rep(NA,nm-length(result)))
-for (j in startm:nm) {
+result<-c(result,rep(NA,nmodel-length(result)))
+for (j in startm:nmodel) {
   
   pathModel<-""
-  for (i in 2:9)
-    pathModel<-paste0(pathModel,'\n','v',format(allModels[j,i]), '~', 'v', format(allModels[j,i-1]))
+  for (i in 2:nvar)
+    pathModel<-paste0(pathModel,'\n','v',format(vars[allModels[j,i]]), '~', 'v', format(vars[allModels[j,i-1]]))
   
   semResult<-lavaan::sem(pathModel,sample.cov=corrs,sample.nobs=1000)
   fit<-lavaan::fitMeasures(semResult)
   result[j]<-fit["aic"]
-  if (floor(j/1000)*1000==j) print(c(j,which.min(result[1:j]),allModels[which.min(result[1:j]),]))
+  if (floor(j/1000)*1000==j) print(c(j,nmodel,which.min(result[1:j]),vars[allModels[which.min(result[1:j]),]]))
 }
 
-print(allModels[which.min(result),])
+print(vars[allModels[which.min(result),]])
 
 j<-which.min(result)
 pathModel<-""
-for (i in 2:9)
-  pathModel<-paste0(pathModel,'\n','v',format(allModels[j,i]), '~', 'v', format(allModels[j,i-1]))
+for (i in 2:nvar)
+  pathModel<-paste0(pathModel,'\n','v',format(vars[allModels[j,i]]), '~', 'v', format(vars[allModels[j,i-1]]))
 
 semResult<-lavaan::sem(pathModel,sample.cov=corrs,sample.nobs=1000)
 coeffs<-rowSums(lavaan::lavInspect(semResult,"coef")$beta)
 
 # v2   v4   v1   v3   v8   v7   v9   v6   v5  
 # 0.00 0.62 0.73 0.73 0.34 0.63 0.61 0.62 0.71  
+
+# v2   v4   v1   v3   v6   v9   v8   
+# 0.00 0.62 0.73 0.73 0.40 0.62 0.57  
 

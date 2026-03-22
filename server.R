@@ -10,7 +10,7 @@ server <- function(input, output) {
   
   observeEvent({c(input$New,input$autismExponent,input$autismSensitivity,input$generalCapacity,
                   input$autismBias,input$autismBiasGroups,input$autismBiasCost,
-                  input$display
+                  input$display,input$dimensions
                   )}, 
     {
       
@@ -44,11 +44,17 @@ server <- function(input, output) {
       notOK<-"#000"      
       
       # ASDQ structure
-      nsegments<-39
-      groups<-c(7,3,4,3,4,3,4,3,4,4)
-      betterSequence<-c(2,4,1,3,8,7,9,6,5,10) # see pathModel.R
-      corrsSequence<-c(0.00,0.62,0.73,0.73,0.34,0.63,0.61,0.62,0.71,0)
-
+      if (input$dimensions=="clean") {
+        groups<-c(7,3,4,3,3,3,4,4)
+        betterSequence<-c(2,4,1,3,5,7,6,8) # see pathModel.R
+        corrsSequence<-c(0.00,0.62,0.73,0.73,0.40,0.62,0.57,0)
+      } else {
+        groups<-c(7,3,4,3,4,3,4,3,4,4)
+        betterSequence<-c(2,4,1,3,8,7,9,6,5,10) # see pathModel.R
+        corrsSequence<-c(0.00,0.62,0.73,0.73,0.34,0.63,0.61,0.62,0.71,0)
+      }
+      nsegments<-sum(groups)
+      
       # colours for circle
       nrings<-7
       displayExponent<-2.5
@@ -68,9 +74,9 @@ server <- function(input, output) {
         hues<-c(hues,huesAdd)
       }
       hues<-hues-min(hues)
-      hues<-hues/max(hues[1:35])*0.7
+      hues<-hues/max(hues[1:(nsegments-4)])*0.7
       hues<-hues^1.2
-      
+
       # get the basic simulation parameters from the ui
       generalCapacity<-input$generalCapacity/100
       autismExponent<-input$autismExponent
@@ -110,6 +116,7 @@ server <- function(input, output) {
                     autismBiasGroups=input$autismBiasGroups,
                     autismBiasCost=input$autismBiasCost,
                     display=input$display,
+                    dimensions=input$dimensions,
                     character=character)
       setBrawEnv("oldVals",oldVals)
       
@@ -117,18 +124,19 @@ server <- function(input, output) {
       # or the better one, including more positive labels
       switch (input$display,
               "original"={
-                labels<-c('basic\nsocial communication','affiliation','perspective taking','peer relations',
-                          'repetitive behaviour','sensory interests','insistance\non sameness','sensory\nsensitivities',
-                          'restricted interests','other')
-                useGroups<-1:10 
+                  labels<-c('basic\nsocial communication','affiliation','perspective taking','peer relations',
+                            'repetitive behaviour','sensory interests','insistance\non sameness','sensory\nsensitivities',
+                            'restricted interests','other')
+                  if (input$dimensions=="clean") labels<-labels[c(1:4,6,8:10)]
+                useGroups<-1:length(groups) 
               },
               "positive"={
                 labels<-c('people\nsensitivity','affiliation','perspective taking','peer relations',
                           'repetitive\nbehaviour','sensory\ninterests','preference\nfor predictability','sensory\nsensitivity',
                           'specialized\ninterests','other')
+                if (input$dimensions=="clean") labels<-labels[c(1:4,6,8:10)]
                 useGroups<-betterSequence
-              },
-              {}
+              }
       )
 
       # resequence the sectors of the diagram
@@ -157,7 +165,7 @@ server <- function(input, output) {
           if (ring==1) width<-0.5 else width<-1
             x<-c(sin(arc)*(ring+width/(nrings-1)),rev(sin(arc))*ring)
             y<-c(cos(arc)*(ring+width/(nrings-1)),rev(cos(arc))*ring)
-            if (i<36)  fill<-hsv(hues[i],ring^displayExponent,0.75+ring*0.25)
+            if (i<=(nsegments-4))  fill<-hsv(hues[i],ring^displayExponent,0.75+ring*0.25)
             else fill<-hsv(0,0,(0.85-ring*0.75)^(1/displayExponent))
             g<-addG(g,dataPolygon(data.frame(x=x*radius,y=y*radius),
                                   fill=fill,colour="white"))
