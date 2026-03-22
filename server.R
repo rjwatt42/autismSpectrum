@@ -104,8 +104,8 @@ server <- function(input, output) {
               },
               "positive"={
                 labels<-c('people\nsensitivity','affiliation','perspective taking','peer relations',
-                          'repetitive behaviour','sensory interests','preference\nfor predictability','sensory\nsensitivity',
-                          'specialized interests','other')
+                          'repetitive\nbehaviour','sensory\ninterests','preference\nfor predictability','sensory\nsensitivity',
+                          'specialized\ninterests','other')
                 useGroups<-betterSequence # see pathModel.R
               },
               {}
@@ -116,7 +116,7 @@ server <- function(input, output) {
       hues<-c()
       for (i in 1:length(groups)) {
         use<-which(betterSequence==i)
-        nextHue<-(use-0.5)/(length(groups)+0.5)+seq(-1,1,length.out=groups[i])*0.01
+        nextHue<-(use-0.5)/(length(groups)-1+0.5)+seq(-1,1,length.out=groups[i])*0.01
         hues<-c(hues,nextHue)
       }
       hues<-hues^1.2
@@ -147,9 +147,10 @@ server <- function(input, output) {
           if (ring==1) width<-0.5 else width<-1
             x<-c(sin(arc)*(ring+width/(nrings-1)),rev(sin(arc))*ring)
             y<-c(cos(arc)*(ring+width/(nrings-1)),rev(cos(arc))*ring)
+            if (i<36)  fill<-hsv(hues[i],ring^displayExponent,0.75+ring*0.25)
+            else fill<-hsv(0,0,(0.85-ring*0.75)^(1/displayExponent))
             g<-addG(g,dataPolygon(data.frame(x=x*radius,y=y*radius),
-                                  fill=hsv(hues[i],ring^displayExponent,0.75+ring*0.25),
-                                  colour="white"))
+                                  fill=fill,colour="white"))
         }
       }
       # add radiating lines between groups of the ASDQ
