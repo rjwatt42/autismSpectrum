@@ -49,10 +49,60 @@ server <- function(input, output) {
     notOK<-"#000"   
     
     
-    colourCircle<-FALSE
-    colourDemand<-TRUE
-    shadedCircle<-TRUE
-    drawPerson<-TRUE
+    step<-as.numeric(input$version)
+    switch(step,
+           {
+             colourCircle<-TRUE
+             shadedCircle<-FALSE
+             drawPerson<-FALSE
+             colourDemand<-TRUE
+             sensibleHues<-FALSE
+             colourOuterRing<-TRUE
+           },
+           {
+             colourCircle<-TRUE
+             shadedCircle<-TRUE
+             drawPerson<-FALSE
+             colourDemand<-TRUE
+             sensibleHues<-FALSE
+             colourOuterRing<-TRUE
+           },{
+             colourCircle<-TRUE
+             shadedCircle<-TRUE
+             drawPerson<-FALSE
+             colourDemand<-TRUE
+             sensibleHues<-FALSE
+             colourOuterRing<-TRUE
+           },{
+             colourCircle<-TRUE
+             shadedCircle<-TRUE
+             drawPerson<-FALSE
+             colourDemand<-TRUE
+             sensibleHues<-TRUE
+             colourOuterRing<-TRUE
+           },{
+             colourCircle<-TRUE
+             shadedCircle<-TRUE
+             drawPerson<-TRUE
+             colourDemand<-TRUE
+             sensibleHues<-TRUE
+             colourOuterRing<-TRUE
+           },{
+             colourCircle<-FALSE
+             shadedCircle<-TRUE
+             drawPerson<-TRUE
+             colourDemand<-TRUE
+             sensibleHues<-TRUE
+             colourOuterRing<-TRUE
+           },{
+             colourCircle<-FALSE
+             shadedCircle<-TRUE
+             drawPerson<-TRUE
+             colourDemand<-TRUE
+             sensibleHues<-TRUE
+             colourOuterRing<-FALSE
+           }
+           )
 
     # ASDQ structure
     switch (input$dimensions,
@@ -86,6 +136,7 @@ server <- function(input, output) {
     # colours for circle
     nrings<-7
     displayExponent<-2.5
+    if (sensibleHues) {
     # hh<-sort(rgb2hsv(col2rgb(hcl.colors(1000)))[1,])
     groupHues<-rep(0,length(groups))
     nextHue<-0
@@ -95,6 +146,10 @@ server <- function(input, output) {
       groupHues[betterSequence[i]]<-nextHue
     }
     groupHues<-(groupHues-min(groupHues))/(max(groupHues)-min(groupHues))
+    } else {
+      groupHues<-seq(0,1,length.out=length(groups))
+      groupHues<-groupHues[c(seq(1,length(groups),2),seq(2,length(groups),2))]
+    }
     # groupHues<-hh[floor(groupHues*999)+1]
     hues<-c()
     for (i in 1:length(groups)) {
@@ -173,6 +228,7 @@ server <- function(input, output) {
               useGroups<-betterSequence
             }
     )
+    if (step==3) useGroups<-1:length(groups) 
     if (excludeOther) labels<-labels[1:length(groups)]
     
     # resequence the sectors of the diagram
@@ -254,20 +310,24 @@ server <- function(input, output) {
         if (ring==1) width<-0.5 else width<-1
         x<-c(sin(arc)*(ring+width/(nrings-1)),rev(sin(arc))*ring)
         y<-c(cos(arc)*(ring+width/(nrings-1)),rev(cos(arc))*ring)
-        if ((!colourCircle && ring<1) || (!excludeOther && i>(nsegments-4))) {
+        colour<-"none"
+        if ((!colourCircle && ring<1) || (!colourOuterRing && ring==1) || (!excludeOther && i>(nsegments-4))) {
           sat<-0
-          val<-(0.85-ring*0.75)^(1/displayExponent)
+          if (shadedCircle) 
+            val<-(0.85-ring*0.75)^(1/displayExponent)
+          else
+            val<-0.75
         } else {
           val<-1
           sat<-1
           if (shadedCircle) {
             sat<-ring^displayExponent
             val<-0.75+ring*0.25
-          }
+          } else colour<-"#555555"
         }
         fill<-hsv(hues[i],sat,val)
         g<-addG(g,dataPolygon(data.frame(x=x*radius,y=y*radius),
-                              fill=fill,colour="none"))
+                              fill=fill,colour=colour))
       }
     }
     # add radiating lines between groups of the ASDQ

@@ -142,6 +142,10 @@ function myFunction() {
                                tags$td(width = "50%", selectInput("dimensions", NULL,c("original","sensible","minimal"), selected = "sensible",selectize=FALSE))
                              ),
                              tags$tr(
+                               tags$td(width = "50%", tags$div(style=localStyle,"version:")),
+                               tags$td(width = "50%", selectInput("version", NULL,format(1:7), selected = "7",selectize=FALSE))
+                             ),
+                             tags$tr(
                                tags$td(width = "50%", tags$div(style=localStyle," ")),
                                tags$td(width = "50%", actionButton(inputId = "New", label = "Make Person" ))
                              )
