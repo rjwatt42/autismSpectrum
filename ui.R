@@ -18,24 +18,60 @@ ui <- fluidPage(
       paste0(".selectize-dropdown { font-size: ",fontSize ,";line-height:10px}")
     )),
     tags$style(HTML( # action button
-      paste0(".col-sm-3 button {font-size:",fontSize , ";font-weight:Bold;color:white; background-color: #005886;height:20px;padding-top:0px;padding-bottom:0px;padding-left:4px;padding-right:4px;margin-bottom:4px;margin-right:12px;margin-top:4px;margin-left:0px}"),
-      paste0(".col-sm-2 button {font-size:",fontSize , ";font-weight:Bold;color:white; background-color: #005886;height:20px;padding-top:0px;padding-bottom:0px;padding-left:4px;padding-right:4px;margin-bottom:4px;margin-right:12px;margin-top:4px;margin-left:0px}"),
-      paste0(".col-sm-1 button {font-size:",fontSize , ";font-weight:Bold;color:white; background-color: #005886;height:20px;padding-top:0px;padding-bottom:0px;padding-left:4px;padding-right:4px;margin-bottom:4px;margin-right:12px;margin-top:4px;margin-left:0px}")
+      paste0(".col-sm-3 button {font-size:",fontSize , ";font-weight:Bold;color:white; background-color: #005886;height:24px;padding:0px;padding-left:10px;padding-right:10px;margin:0px;}")
     )),
     tags$style(HTML( # well panels
       ".well {padding:2px; margin:0px;margin-bottom:8px;margin-left:0px;margin-right:0px;background-color: #eeeeee;border-radius:0} "
     )),
     tags$style(HTML( # checkbox
       ".checkbox {line-height: 10px;margin:0px;padding:0px;padding-left:4px;}"
+    )),
+    tags$style(HTML(
+      ".table label{ display: table-cell; text-align: center;vertical-align: middle; }  .form-group { display: table-row;}"
+      )),
+    
+    tags$style(HTML('.popup {
+      position: relative;
+      display: inline-block;
+      cursor: pointer;
+    }
+      .popup .popuptext {
+        visibility: hidden;
+        width: 160px;
+        background-color: #555;
+          color: #fff;
+          text-align: center;
+        border-radius: 6px;
+        padding: 8px 0;
+        position: absolute;
+        z-index: 1;
+        bottom: 125%;
+        left: 50%;
+        margin-left: -80px;
+      }
+      .popup .popuptext::after {
+        content: "";
+        position: absolute;
+        top: 100%;
+        left: 50%;
+        margin-left: -5px;
+        border-width: 5px;
+        border-style: solid;
+        border-color: #555 transparent transparent transparent;
+      }
+      .popup .show {
+        visibility: visible;
+      }',
+                    '<script>
+// When the user clicks on <div>, open the popup
+function myFunction() {
+  var popup = document.getElementById("myPopup");
+  popup.classList.toggle("show");
+}
+</script>'
     ))
   ),
-  tags$head( # alignment of controls  
-    tags$style(type="text/css",".table label{ display: table-cell; text-align: center;vertical-align: middle; }  .form-group { display: table-row;}")
-  ),
-  tags$head( # alignment of controls
-    tags$style(".myTable {margin:0px;padding:0px;}")
-  ),
-  
+
   # App title ----
   # titlePanel("Modelling Autism?"),
   
@@ -66,22 +102,32 @@ ui <- fluidPage(
                              tags$tr(tags$td(width = "70%",
                                              tags$div(style=paste0(localStyle,"font-weight:bold;text-align: left;"),HTML('<a href="https://doingpsychstats.wordpress.com/autism-diagram#Autism">Input demand</a>'))) ),
                              tags$tr(
-                               tags$td(width = "70%", tags$div(style=localStyle,HTML('score (0-1):'))),
+                               tags$td(width = "70%", tags$div(style=localStyle,HTML('demand score (0-1):'))),
                                tags$td(width = "30%", numericInput("autismExponent", NULL, min = 0, max = 1, step = 0.1, value = 0.6))
                              ),
                              tags$tr(tags$td(width = "70%",
                                              tags$div(style=paste0(localStyle,"font-weight:bold;text-align: left;"),HTML('<a href="https://doingpsychstats.wordpress.com/autism-diagram#Masking">Masking</a>'))) ),
                              tags$tr(
                                tags$td(width = "70%", tags$div(style=localStyle,"amount (0-1):")),
-                               tags$td(width = "30%", numericInput("autismBias", NULL, min = 0, max = 1, step = 0.1, value = 0.2))
+                               tags$td(width = "30%", numericInput("autismMask", NULL, min = 0, max = 1, step = 0.1, value = 0.2))
                              ),
                              tags$tr(
-                               tags$td(width = "70%", tags$div(style=localStyle,"no groups (1-4):")),
-                               tags$td(width = "30%", numericInput("autismBiasGroups", NULL, min = 1, max = 10, step = 1, value = 2))
+                               tags$td(width = "70%", tags$div(style=localStyle,"no dimensions (1-4):")),
+                               tags$td(width = "30%", numericInput("autismMaskGroups", NULL, min = 1, max = 10, step = 1, value = 2))
                              ),
                              tags$tr(
                                tags$td(width = "70%", tags$div(style=localStyle,"cost (0-1):")),
-                               tags$td(width = "30%", numericInput("autismBiasCost", NULL, min = 0, max = 1, step = 0.1, value = 0.4))
+                               tags$td(width = "30%", numericInput("autismMaskCost", NULL, min = 0, max = 1, step = 0.1, value = 0.4))
+                             ),
+                             tags$tr(tags$td(width = "70%",
+                                             tags$div(style=paste0(localStyle,"font-weight:bold;text-align: left;"),HTML('<a href="https://doingpsychstats.wordpress.com/autism-diagram#Stimming">Stimming</a>'))) ),
+                             tags$tr(
+                               tags$td(width = "70%", tags$div(style=localStyle,"amount (0-1):")),
+                               tags$td(width = "30%", numericInput("autismStim", NULL, min = 0, max = 1, step = 0.1, value = 0.0))
+                             ),
+                             tags$tr(
+                               tags$td(width = "70%", tags$div(style=localStyle,"gain (0-1):")),
+                               tags$td(width = "30%", numericInput("autismStimgain", NULL, min = 0, max = 1, step = 0.1, value = 0.2))
                              )
                   )
         ),
@@ -93,11 +139,11 @@ ui <- fluidPage(
                              ),
                              tags$tr(
                                tags$td(width = "50%", tags$div(style=localStyle,"dimensions:")),
-                               tags$td(width = "50%", selectInput("dimensions", NULL,c("full","clean"), selected = "full",selectize=FALSE))
+                               tags$td(width = "50%", selectInput("dimensions", NULL,c("original","sensible","minimal"), selected = "sensible",selectize=FALSE))
                              ),
                              tags$tr(
                                tags$td(width = "50%", tags$div(style=localStyle," ")),
-                               tags$td(width = "50%", div(style = "display:inline-block; float:right;", actionButton(inputId = "New", label = "Make Person" )))
+                               tags$td(width = "50%", actionButton(inputId = "New", label = "Make Person" ))
                              )
                   )
         ),
@@ -234,7 +280,7 @@ ui <- fluidPage(
                          tags$tr(tags$td(width = "70%",
                                          tags$div(HTML('2. <a href="https://www.scientificamerican.com/article/the-autism-spectrum-isnt-a-sliding-scale-39-traits-show-the-complexity/">Parshall and Montanez (2026). </a> "Here’s what the autism spectrum really looks like" Scientific American (Mar 17, 2026)'))) 
                          )
+              )    
               )
-    )
   )
 )

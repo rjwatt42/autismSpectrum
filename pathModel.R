@@ -26,6 +26,7 @@ corrs<-matrix(c(
 
 # removing 5 & 7
 vars<-c(1:4,6,8:9)
+vars<-c(1:4,6:9)
 corrs<-corrs[vars,]
 corrs<-corrs[,vars]
 nvar<-nrow(corrs)
@@ -64,9 +65,16 @@ for (i in 2:nvar)
 semResult<-lavaan::sem(pathModel,sample.cov=corrs,sample.nobs=1000)
 coeffs<-rowSums(lavaan::lavInspect(semResult,"coef")$beta)
 
+#full
 # v2   v4   v1   v3   v8   v7   v9   v6   v5  
 # 0.00 0.62 0.73 0.73 0.34 0.63 0.61 0.62 0.71  
 
+#sensible
+# v2   v4   v1   v3   v6   v9   v7   v8   
+# 0.00 0.62 0.73 0.73 0.40 0.62 0.61 0.63  
+
+
+#minimal
 # v2   v4   v1   v3   v6   v9   v8   
 # 0.00 0.62 0.73 0.73 0.40 0.62 0.57  
 
