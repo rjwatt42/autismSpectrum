@@ -416,8 +416,8 @@ server <- function(input, output) {
     
     if (useHTML) 
       g<-generate_tab(title="Show:",titleWidth=50,
-                      tabs=c("wheel","help","definitions"),
-                      tabContents=c(g,helpText(),definitionText()),
+                      tabs=c("wheel","help","definitions","issues"),
+                      tabContents=c(g,helpText(),definitionText(),issuesText()),
                       open=1,
                       width=figureHeight,height=figureHeight
       )
