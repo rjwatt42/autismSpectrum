@@ -143,7 +143,7 @@ questionsText<-function() {
                                       "Sensory interests",
                                       "Sameness",
                                       "Sensory sensitivities",
-                                      "Restrictired",
+                                      "Restricted interests",
                                       "Other"
                                ),
                                tabContents=c(
