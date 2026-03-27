@@ -135,14 +135,14 @@ issuesText<-function() {
 questionsText<-function() {
   
   return(generate_tab(title="ASDQ:",titleWidth=50,
-                               tabs=c("Basic Social",
+                               tabs=c("Basic social communication",
                                       "Affiliation",
-                                      "Persepctive",
-                                      "Peer R",
+                                      "Perspective taking",
+                                      "Peer relations",
                                       "Repetitive",
-                                      "Sense interests",
+                                      "Sensory interests",
                                       "Sameness",
-                                      "Sensitivities",
+                                      "Sensory sensitivities",
                                       "Restrictired",
                                       "Other"
                                ),
@@ -197,7 +197,7 @@ questionsText<-function() {
 <br>38 Difficulty understanding sarcasm or other nonliteral communication
 <br>39 Atypical volume, tone, rhythm or rate of speech
   "),
-  open=1
+  open=1,width=500,height=350
   )
   )
 }
